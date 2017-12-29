@@ -30,6 +30,7 @@ function getGameState(id) {
   return JSON.stringify({
     id: id,
     turn: users[turn].nickname,
+    yourTurn: users.indexOf(data) == turn,
     cards: data.cards,
     currentCard: currentCard
   });
