@@ -28,9 +28,9 @@ function getGameState(id) {
   if ( data.length <= 0 ) return "err_invalid_id";
   data = data[0];
   return JSON.stringify({
-    cards: data.cards,
     id: id,
-    turn: turn,
+    turn: users[turn].nickname,
+    cards: data.cards,
     currentCard: currentCard
   });
 }
@@ -44,7 +44,7 @@ app.get("/api/init_player",function(request,response) {
   var id = randomString(10);
   users.push({
     id: id,
-    nick: qs,
+    nickname: qs,
     cards: "x".repeat(7).split("").map(item => randomCard())
   });
   if ( turn < 0 ) turn = 0;
