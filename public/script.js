@@ -12,7 +12,6 @@ function simpleAJAX(url,qs,callback) {
 function doLogin() {
   simpleAJAX("/api/init_player",document.getElementById("nickname").value,function(data) {
     currentState = JSON.parse(data);
-    currentState.currentCard = [0,1];
     renderAllCards();
   });
 }
@@ -67,13 +66,25 @@ function renderCard(canvas,card) {
     ctx.arc(canvas.width / 2,canvas.width / 2 + 10,canvas.width * .4,0,Math.PI * 0.5,false);
     ctx.lineTo(canvas.width / 2,canvas.width / 2 + 10);
     ctx.fill();
+    ctx.fillStyle = "#000";
     if ( card[1] == 1 ) {
-      ctx.fillStyle = "#fff";
       ctx.fillText("+4",canvas.width / 2 - 37,canvas.height / 2 + 15);
+    } else if ( card[1] == 2 ) {
+      ctx.font = "30px Arial";
+      ctx.fillText("UNO",canvas.width / 2 - 33,canvas.height / 2 + 7);
     }
   }
 }
 
 function renderAllCards() {
   renderCard(document.getElementById("currentCard"),currentState.currentCard);
+  renderCard(document.getElementById("drawCard"),[0,2]);
+  var div = document.getElementById("cards");
+  for ( var i = 0; i < currentState.cards.length; i++ ) {
+    var canvas = document.createElement("canvas");
+    canvas.height = "125";
+    canvas.width = "100";
+    div.appendChild(canvas);
+    renderCard(canvas,currentState.cards[i]);
+  }
 }

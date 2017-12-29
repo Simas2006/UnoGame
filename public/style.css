@@ -6,3 +6,6 @@ button,input {
   font-size: 100%;
   background-color: #fff;
 }
+canvas {
+  padding: 10px;
+}
