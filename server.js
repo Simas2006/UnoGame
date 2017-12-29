@@ -19,7 +19,7 @@ function randomCard(noPowerCards) {
   if ( Math.floor(Math.random() * 14) == 0 && (! noPowerCards) ) {
     return [0,getRandomInt(0,1)];
   } else {
-    return [getRandomInt(1,4),getRandomInt(0,noPowerCards ? 9 : 13)];
+    return [getRandomInt(1,4),getRandomInt(0,noPowerCards ? 9 : 12)];
   }
 }
 
