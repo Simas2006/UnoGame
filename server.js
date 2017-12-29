@@ -84,18 +84,18 @@ app.get("/api/play_card",function(request,response) {
     response.send("err_no_such_card");
     return;
   }
-  if ( (data.cards[index][0] != 0 && (data.cards[index][0] == currentCard[0] || data.cards[index][1] == currentCard[1])) || data.cards[index][0] == 0 ) {
+  if ( (data.cards[index][0] != 0 && (data.cards[index][0] == currentCard[0] || data.cards[index][1] == currentCard[1])) || data.cards[index][0] == 0 || currentCard[0] == 0 ) {
     currentCard = data.cards[index];
     data.cards.splice(index,1);
     var nextUser = turn + 1;
     if ( nextUser >= users.length ) nextUser = 0;
-    if ( ! (currentCard == [0,1] || currentCard[1] >= 10) ) turn++;
+    if ( ! ((currentCard[0] == 0 && currentCard[1] == 1) || currentCard[1] >= 10) ) turn++;
     users[uIndex].cards = data.cards;
     if ( turn >= users.length ) turn = 0;
-    if ( currentCard[1] == 13 || currentCard == [0,1] ) {
+    if ( currentCard[1] == 13 || (currentCard[0] == 0 && currentCard[1] == 1) ) {
       users[nextUser].cards.push(randomCard());
       users[nextUser].cards.push(randomCard());
-      if ( currentCard == [0,1] ) {
+      if ( (currentCard[0] == 0 && currentCard[1] == 1) ) {
         users[nextUser].cards.push(randomCard());
         users[nextUser].cards.push(randomCard());
       }
