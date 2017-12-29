@@ -65,7 +65,7 @@ app.get("/api/play_card",function(request,response) {
   var qs = request.url.split("?").slice(1).join("?");
   var id,index;
   [id,index] = qs.split(",");
-  if ( ! qs || qs.split(",").length != 2 ) {
+  if ( ! qs || qs.split(",").length >= 2 ) {
     response.send("err_args_missing");
     return;
   }

@@ -27,6 +27,14 @@ function drawCard() {
   });
 }
 
+function selectWildColor(color) {
+  document.getElementById("wild_buttons").style.display = "none";
+  simpleAJAX("/api/play_card",currentState.id + "," + currentState.cards.indexOf([0,0]) + "," + color,function(data) {
+    if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
+    else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
+    else currentState = JSON.parse(data);
+  });
+}
 
 function renderCard(canvas,card) {
   var ctx = canvas.getContext("2d");
@@ -102,13 +110,21 @@ function renderAllCards() {
     canvas.id = "c:" + i;
     canvas.onclick = function() {
       var index = parseInt(this.id.split(":")[1]);
-      simpleAJAX("/api/play_card",currentState.id + "," + index,function(data) {
-        if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
-        else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
-        else currentState = JSON.parse(data);
-      });
+      if ( currentState.cards[index][0] == 0 && currentState.cards[index][1] == 0 ) {
+        document.getElementById("wild_buttons").style.display = "block";
+      } else {
+        simpleAJAX("/api/play_card",currentState.id + "," + index,function(data) {
+          if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
+          else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
+          else currentState = JSON.parse(data);
+        });
+      }
     }
     div.appendChild(canvas);
     renderCard(canvas,currentState.cards[i]);
   }
+}
+
+window.onload = function() {
+  document.getElementById("wild_buttons").style.display = "none";
 }
