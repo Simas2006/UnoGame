@@ -88,7 +88,15 @@ app.get("/api/play_card",function(request,response) {
     currentCard = data.cards[index];
     data.cards.splice(index,1);
     users[uIndex].cards = data.cards;
-    turn++;
+    if ( ! (data.cards[index] == [0,1] || data.cards[index][1] >= 10) ) turn++;
+    if ( data.cards[index][1] == 13 || data.cards[index] == [0,1] ) {
+      users[turn + 1].cards.push(randomCard());
+      users[turn + 1].cards.push(randomCard());
+      if ( data.cards[index] == [0,1] ) {
+        users[turn + 1].cards.push(randomCard());
+        users[turn + 1].cards.push(randomCard());
+      }
+    }
     response.send(getGameState(id));
   } else {
     response.send("err_invalid_card");
