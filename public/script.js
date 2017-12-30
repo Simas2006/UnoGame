@@ -29,10 +29,10 @@ function drawCard() {
 
 function selectWildColor(color) {
   document.getElementById("wild_buttons").style.display = "none";
-  simpleAJAX("/api/play_card",currentState.id + "," + currentState.cards.indexOf([0,0]) + "," + color,function(data) {
+  simpleAJAX("/api/play_card",currentState.id + "," + currentState.cards.map(item => item[0] == 0 && item[1] == 0 ? "1" : "0").indexOf("1") + "," + color,function(data) {
     if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
     else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
-    else currentState = JSON.parse(data);
+    else console.log(data);
   });
 }
 
@@ -40,6 +40,7 @@ function renderCard(canvas,card) {
   var ctx = canvas.getContext("2d");
   var colors = ["#000","#d11","#31d","#073","#fc4"];
   ctx.fillStyle = colors[card[0]];
+  if ( card[0] == 0 && card[1] == 0 ) ctx.fillStyle = colors[currentState.wildColor];
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle = "#fff";
   ctx.beginPath();
