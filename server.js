@@ -4,6 +4,7 @@ var PORT = process.argv[2] || 8000;
 var users = [];
 var currentCard = randomCard(true);
 var turn = -1;
+var wildColor = -1;
 
 function randomString(length) {
   var chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -32,7 +33,8 @@ function getGameState(id) {
     turn: users[turn].nickname,
     yourTurn: users.indexOf(data) == turn,
     cards: data.cards,
-    currentCard: currentCard
+    currentCard: currentCard,
+    wildColor: wildColor
   });
 }
 
@@ -63,9 +65,9 @@ app.get("/api/get_state",function(request,response) {
 
 app.get("/api/play_card",function(request,response) {
   var qs = request.url.split("?").slice(1).join("?");
-  var id,index;
-  [id,index] = qs.split(",");
-  if ( ! qs || qs.split(",").length >= 2 ) {
+  var id,index,wild;
+  [id,index,wild] = qs.split(",");
+  if ( ! qs || qs.split(",").length < 2 || qs.split(",").length > 3 ) {
     response.send("err_args_missing");
     return;
   }
@@ -80,19 +82,23 @@ app.get("/api/play_card",function(request,response) {
     response.send("err_incorrect_turn");
     return;
   }
-  if ( ! data.cards[index] ) {
+  if ( data.cards[index] === undefined ) {
     response.send("err_no_such_card");
     return;
   }
-  if ( (data.cards[index][0] != 0 && (data.cards[index][0] == currentCard[0] || data.cards[index][1] == currentCard[1])) || data.cards[index][0] == 0 || currentCard[0] == 0 ) {
+  if ( (data.cards[index][0] != 0 && (data.cards[index][0] == currentCard[0] || data.cards[index][1] == currentCard[1])) ||
+        data.cards[index][0] == 0 ||
+        (currentCard[0] == 0 && currentCard[1] == 1) ||
+        (currentCard[0] == 0 && currentCard[1] == 0 && data.cards[index][0] == wildColor) ) {
     currentCard = data.cards[index];
     data.cards.splice(index,1);
     var nextUser = turn + 1;
     if ( nextUser >= users.length ) nextUser = 0;
+    if ( currentCard[0] == 0 && currentCard[1] == 0 ) wildColor = parseInt(wild);
     if ( ! ((currentCard[0] == 0 && currentCard[1] == 1) || currentCard[1] >= 10) ) turn++;
     users[uIndex].cards = data.cards;
     if ( turn >= users.length ) turn = 0;
-    if ( currentCard[1] == 13 || (currentCard[0] == 0 && currentCard[1] == 1) ) {
+    if ( currentCard[1] == 12 || (currentCard[0] == 0 && currentCard[1] == 1) ) {
       users[nextUser].cards.push(randomCard());
       users[nextUser].cards.push(randomCard());
       if ( (currentCard[0] == 0 && currentCard[1] == 1) ) {
