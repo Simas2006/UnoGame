@@ -41,11 +41,11 @@ function selectWildColor(color) {
   });
 }
 
-function renderCard(canvas,card) {
+function renderCard(canvas,card,isCurrent) {
   var ctx = canvas.getContext("2d");
   var colors = ["#000","#d11","#31d","#073","#fc4"];
   ctx.fillStyle = colors[card[0]];
-  if ( card[0] == 0 && card[1] == 0 ) ctx.fillStyle = colors[currentState.wildColor];
+  if ( card[0] == 0 && card[1] == 0 && isCurrent ) ctx.fillStyle = colors[currentState.wildColor];
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle = "#fff";
   ctx.beginPath();
@@ -104,7 +104,7 @@ function renderCard(canvas,card) {
 
 function renderAllCards() {
   document.getElementById("message").innerText = "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn.";
-  renderCard(document.getElementById("currentCard"),currentState.currentCard);
+  renderCard(document.getElementById("currentCard"),currentState.currentCard,true);
   renderCard(document.getElementById("drawCard"),[0,2]);
   var div = document.getElementById("cards");
   while ( div.firstChild ) {
