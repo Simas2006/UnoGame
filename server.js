@@ -99,11 +99,13 @@ app.get("/api/play_card",function(request,response) {
     currentCard = data.cards[index];
     data.cards.splice(index,1);
     var nextUser = turn + 1;
-    if ( nextUser >= users.length ) nextUser = 0;
+    while ( nextUser >= users.length || users[nextUser].cards.length <= 0 ) {
+      if ( nextUser >= users.length ) nextUser = 0;
+      else nextUser++;
+    }
     if ( currentCard[0] == 0 && currentCard[1] == 0 ) wildColor = parseInt(wild);
-    if ( ! ((currentCard[0] == 0 && currentCard[1] == 1) || currentCard[1] >= 10) ) turn++;
+    if ( ! ((currentCard[0] == 0 && currentCard[1] == 1) || currentCard[1] >= 10) ) turn = nextUser;
     users[uIndex].cards = data.cards;
-    if ( turn >= users.length ) turn = 0;
     if ( currentCard[1] == 12 || (currentCard[0] == 0 && currentCard[1] == 1) ) {
       users[nextUser].cards.push(randomCard());
       users[nextUser].cards.push(randomCard());
