@@ -122,7 +122,12 @@ function renderAllCards() {
   for ( var i = 0; i < keys.length; i++ ) {
     specialCardMessage.push(keys[i] + " has " + (currentState.specialCards[keys[i]] == 1 ? "UNO" : "WON"));
   }
-  var realText = message.messageTimeout < 0 ? "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn." : message.messageText;
+  var realText = message.messageText;
+  if ( message.messageTimeout < 0 ) realText = "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn.";
+  if ( currentState.leaderboard ) {
+    realText = "The game has ended.\n" + currentState.leaderboard.map((item,index) => (index + 1) + ". " + item).join("\n");
+    specialCardMessage = [];
+  }
   document.getElementById("message").innerText = realText + (specialCardMessage.length > 0 ? "\n" : "") + specialCardMessage.join("\n");
   renderCard(document.getElementById("currentCard"),currentState.currentCard,true);
   renderCard(document.getElementById("drawCard"),[0,2]);

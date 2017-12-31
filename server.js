@@ -2,6 +2,7 @@ var express = require("express");
 var app = express();
 var PORT = process.argv[2] || 8000;
 var users = [];
+var winners = [];
 var currentCard = randomCard(true);
 var turn = -1;
 var wildColor = -1;
@@ -33,6 +34,7 @@ function getGameState(id) {
   for ( var i = 0; i < specialCardsArr.length; i++ ) {
     specialCards[specialCardsArr[i].nickname] = specialCardsArr[i].cards.length;
   }
+  var showLeaderboard = winners.length + 1 >= users.length;
   return JSON.stringify({
     id: id,
     turn: users[turn].nickname,
@@ -40,7 +42,8 @@ function getGameState(id) {
     cards: data.cards,
     currentCard: currentCard,
     wildColor: wildColor,
-    specialCards: specialCards
+    specialCards: specialCards,
+    leaderboard: showLeaderboard ? winners.concat([users.filter(item => item.cards.length > 0)[0].nickname]) : false
   });
 }
 
@@ -54,9 +57,10 @@ app.get("/api/init_player",function(request,response) {
   users.push({
     id: id,
     nickname: qs,
-    cards: "x".repeat(7).split("").map(item => randomCard())
+    cards: "x".repeat(2).split("").map(item => randomCard())
   });
   if ( turn < 0 ) turn = 0;
+  winners = [];
   response.send(getGameState(id));
 });
 
@@ -98,6 +102,7 @@ app.get("/api/play_card",function(request,response) {
         (currentCard[0] == 0 && currentCard[1] == 0 && data.cards[index][0] == wildColor) ) {
     currentCard = data.cards[index];
     data.cards.splice(index,1);
+    if ( data.cards.length <= 0 ) winners.push(users[uIndex].nickname);
     var nextUser = turn + 1;
     while ( nextUser >= users.length || users[nextUser].cards.length <= 0 ) {
       if ( nextUser >= users.length ) nextUser = 0;
@@ -105,6 +110,7 @@ app.get("/api/play_card",function(request,response) {
     }
     if ( currentCard[0] == 0 && currentCard[1] == 0 ) wildColor = parseInt(wild);
     if ( ! ((currentCard[0] == 0 && currentCard[1] == 1) || currentCard[1] >= 10) ) turn = nextUser;
+    else if ( data.cards.length <= 0 ) turn = nextUser;
     users[uIndex].cards = data.cards;
     if ( currentCard[1] == 12 || (currentCard[0] == 0 && currentCard[1] == 1) ) {
       users[nextUser].cards.push(randomCard());
@@ -154,7 +160,6 @@ app.get("/api/sort_cards",function(request,response) {
   toSort[0] = toSort[0].map(item => data.cards.filter(jtem => jtem[0] == item && jtem[1] <= 9 && jtem[0] != 0));
   toSort[1] = toSort[1].map(item => data.cards.filter(jtem => jtem[0] == item && (jtem[1] >= 10 || jtem[0] == 0)));
   toSort = toSort.map(item => item.map(jtem => jtem.sort((a,b) => a[1] - b[1])));
-  console.log(toSort[1]);
   toSort = toSort.map(item => {
     var result = [];
     for ( var i = 0; i < item.length; i++ ) {
