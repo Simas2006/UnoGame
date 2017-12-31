@@ -1,4 +1,9 @@
 var currentState;
+var message = {
+  messageText: "",
+  messageTimeout: -1,
+  defaultTimeout: 300
+};
 
 function simpleAJAX(url,qs,callback) {
   var req = new XMLHttpRequest();
@@ -34,8 +39,9 @@ function drawCard() {
 function selectWildColor(color) {
   document.getElementById("wild_buttons").style.display = "none";
   simpleAJAX("/api/play_card",currentState.id + "," + currentState.cards.map(item => item[0] == 0 && item[1] == 0 ? "1" : "0").indexOf("1") + "," + color,function(data) {
-    if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
-    else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
+    if ( data == "err_invalid_card" ) { message.messageText = "That's not a valid card!"; message.messageTimeout = message.defaultTimeout; }
+    else if ( data == "err_incorrect_turn" ) { message.messageText = "It's not your turn!"; message.messageTimeout = message.defaultTimeout; }
+    else if ( data.startsWith("err") ) { message.messageText = "An error occurred."; message.messageTimeout = message.defaultTimeout; }
     else data = JSON.parse(data);
     renderAllCards();
   });
@@ -108,7 +114,8 @@ function renderAllCards() {
   for ( var i = 0; i < keys.length; i++ ) {
     specialCardMessage.push(keys[i] + " has " + (currentState.specialCards[keys[i]] == 1 ? "UNO" : "WON"));
   }
-  document.getElementById("message").innerText = "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn.\n" + specialCardMessage.join("\n");
+  var realText = message.messageTimeout < 0 ? "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn." : message.messageText;
+  document.getElementById("message").innerText = realText + "\n" + specialCardMessage.join("\n");
   renderCard(document.getElementById("currentCard"),currentState.currentCard,true);
   renderCard(document.getElementById("drawCard"),[0,2]);
   var div = document.getElementById("cards");
@@ -126,8 +133,9 @@ function renderAllCards() {
         document.getElementById("wild_buttons").style.display = "block";
       } else {
         simpleAJAX("/api/play_card",currentState.id + "," + index,function(data) {
-          if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
-          else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
+          if ( data == "err_invalid_card" ) { message.messageText = "That's not a valid card!"; message.messageTimeout = message.defaultTimeout; }
+          else if ( data == "err_incorrect_turn" ) { message.messageText = "It's not your turn!"; message.messageTimeout = message.defaultTimeout; }
+          else if ( data.startsWith("err") ) { message.messageText = "An error occurred."; message.messageTimeout = message.defaultTimeout; }
           else currentState = JSON.parse(data);
           renderAllCards();
         });
@@ -140,4 +148,10 @@ function renderAllCards() {
 
 window.onload = function() {
   document.getElementById("wild_buttons").style.display = "none";
+  setInterval(function() {
+    if ( message.messageTimeout > -1 ) {
+      message.messageTimeout--;
+      renderAllCards();
+    }
+  },1);
 }
