@@ -103,7 +103,7 @@ function renderCard(canvas,card) {
 }
 
 function renderAllCards() {
-  document.getElementById("message").innerText = "It's currently " + currentState.turn + "'s turn.";
+  document.getElementById("message").innerText = "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn.";
   renderCard(document.getElementById("currentCard"),currentState.currentCard);
   renderCard(document.getElementById("drawCard"),[0,2]);
   var div = document.getElementById("cards");
