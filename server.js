@@ -1,10 +1,12 @@
 var express = require("express");
 var app = express();
 var PORT = process.argv[2] || 8000;
+var START_TIMEOUT = (process.argv[3] * 1000) || 30000;
+var gameStart = false;
 var users = [];
 var winners = [];
 var currentCard = randomCard(true);
-var turn = -1;
+var turn = 0;
 var wildColor = -1;
 
 function randomString(length) {
@@ -29,21 +31,22 @@ function getGameState(id) {
   var data = users.filter(item => item.id == id);
   if ( data.length <= 0 ) return "err_invalid_id";
   data = data[0];
-  var specialCardsArr = users.filter(item => item.cards.length <= 1);
+  var specialCardsArr = users.filter(item => item.cards.length <= 1 && gameStart);
   var specialCards = {};
   for ( var i = 0; i < specialCardsArr.length; i++ ) {
     specialCards[specialCardsArr[i].nickname] = specialCardsArr[i].cards.length;
   }
-  var showLeaderboard = winners.length + 1 >= users.length;
+  var showLeaderboard = winners.length + 1 >= users.length && gameStart;
   return JSON.stringify({
     id: id,
+    cards: data.cards,
+    gameStart: gameStart,
     turn: users[turn].nickname,
     yourTurn: users.indexOf(data) == turn,
-    cards: data.cards,
     currentCard: currentCard,
     wildColor: wildColor,
     specialCards: specialCards,
-    leaderboard: showLeaderboard ? winners.concat([users.filter(item => item.cards.length > 0)[0].nickname]) : false
+    leaderboard: showLeaderboard ? winners.concat([users.filter(item => item.cards.length > 0)[0].nickname]) : false,
   });
 }
 
@@ -57,9 +60,8 @@ app.get("/api/init_player",function(request,response) {
   users.push({
     id: id,
     nickname: qs,
-    cards: "x".repeat(2).split("").map(item => randomCard())
+    cards: []
   });
-  if ( turn < 0 ) turn = 0;
   winners = [];
   response.send(getGameState(id));
 });
@@ -180,5 +182,11 @@ app.get("/",function(request,response) {
 });
 
 app.listen(PORT,function() {
-  console.log("Listening on port " + PORT);
+  console.log("Listening on port " + PORT + ". Waiting for " + (START_TIMEOUT / 1000) + " seconds...");
+  setTimeout(function() {
+    for ( var i = 0; i < users.length; i++ ) {
+      users[i].cards = "x".repeat(2).split("").map(item => randomCard())
+    }
+    gameStart = true;
+  },START_TIMEOUT);
 });

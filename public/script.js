@@ -128,6 +128,7 @@ function renderAllCards() {
     realText = "The game has ended.\n" + currentState.leaderboard.map((item,index) => (index + 1) + ". " + item).join("\n");
     specialCardMessage = [];
   }
+  if ( ! currentState.gameStart ) realText = "Waiting for game to start...";
   document.getElementById("message").innerText = realText + (specialCardMessage.length > 0 ? "\n" : "") + specialCardMessage.join("\n");
   renderCard(document.getElementById("currentCard"),currentState.currentCard,true);
   renderCard(document.getElementById("drawCard"),[0,2]);
