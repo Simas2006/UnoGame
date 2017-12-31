@@ -47,6 +47,14 @@ function selectWildColor(color) {
   });
 }
 
+function sortCards() {
+  simpleAJAX("/api/sort_cards",currentState.id,function(data) {
+    if ( data.startsWith("err") ) { message.messageText = "An error occurred."; message.messageTimeout = message.defaultTimeout; }
+    else data = JSON.parse(data);
+    renderAllCards();
+  });
+}
+
 function renderCard(canvas,card,isCurrent) {
   var ctx = canvas.getContext("2d");
   var colors = ["#000","#d11","#31d","#073","#fc4"];
@@ -115,7 +123,7 @@ function renderAllCards() {
     specialCardMessage.push(keys[i] + " has " + (currentState.specialCards[keys[i]] == 1 ? "UNO" : "WON"));
   }
   var realText = message.messageTimeout < 0 ? "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn." : message.messageText;
-  document.getElementById("message").innerText = realText + "\n" + specialCardMessage.join("\n");
+  document.getElementById("message").innerText = realText + (specialCardMessage.length > 0 ? "\n" : "") + specialCardMessage.join("\n");
   renderCard(document.getElementById("currentCard"),currentState.currentCard,true);
   renderCard(document.getElementById("drawCard"),[0,2]);
   var div = document.getElementById("cards");

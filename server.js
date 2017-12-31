@@ -138,6 +138,36 @@ app.get("/api/draw_card",function(request,response) {
   response.send(getGameState(qs));
 });
 
+app.get("/api/sort_cards",function(request,response) {
+  var qs = request.url.split("?").slice(1).join("?");
+  if ( ! qs ) {
+    response.send("err_args_missing");
+    return;
+  }
+  var data = users.filter(item => item.id == qs);
+  if ( data.length <= 0 ) {
+    response.send("err_invalid_id");
+    return;
+  }
+  data = data[0];
+  var toSort = [[0,1,2,3,4],[0,1,2,3,4]];
+  toSort[0] = toSort[0].map(item => data.cards.filter(jtem => jtem[0] == item && jtem[1] <= 9 && jtem[0] != 0));
+  toSort[1] = toSort[1].map(item => data.cards.filter(jtem => jtem[0] == item && (jtem[1] >= 10 || jtem[0] == 0)));
+  toSort = toSort.map(item => item.map(jtem => jtem.sort((a,b) => a[1] - b[1])));
+  console.log(toSort[1]);
+  toSort = toSort.map(item => {
+    var result = [];
+    for ( var i = 0; i < item.length; i++ ) {
+      result = result.concat(item[i]);
+    }
+    return result;
+  });
+  toSort = toSort[1].concat(toSort[0]);
+  var uIndex = users.indexOf(data);
+  users[uIndex].cards = toSort;
+  response.send(getGameState(qs));
+});
+
 app.use("/public",express.static(__dirname + "/public"));
 
 app.get("/",function(request,response) {
