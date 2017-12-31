@@ -12,10 +12,13 @@ function simpleAJAX(url,qs,callback) {
 function doLogin() {
   simpleAJAX("/api/init_player",document.getElementById("nickname").value,function(data) {
     currentState = JSON.parse(data);
+    renderAllCards();
     setInterval(function() {
       simpleAJAX("/api/get_state",currentState.id,function(data) {
-        currentState = JSON.parse(data);
-        renderAllCards();
+        if ( JSON.stringify(currentState) != data ) {
+          currentState = JSON.parse(data);
+          renderAllCards();
+        }
       });
     },250);
   });
@@ -24,6 +27,7 @@ function doLogin() {
 function drawCard() {
   simpleAJAX("/api/draw_card",currentState.id,function(data) {
     currentState = JSON.parse(data);
+    renderAllCards();
   });
 }
 
@@ -32,7 +36,8 @@ function selectWildColor(color) {
   simpleAJAX("/api/play_card",currentState.id + "," + currentState.cards.map(item => item[0] == 0 && item[1] == 0 ? "1" : "0").indexOf("1") + "," + color,function(data) {
     if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
     else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
-    else console.log(data);
+    else data = JSON.parse(data);
+    renderAllCards();
   });
 }
 
@@ -118,6 +123,7 @@ function renderAllCards() {
           if ( data == "err_invalid_card" ) document.getElementById("message").innerText = "That's not a valid card!";
           else if ( data == "err_incorrect_turn" ) document.getElementById("message").innerText = "It's not your turn!";
           else currentState = JSON.parse(data);
+          renderAllCards();
         });
       }
     }
