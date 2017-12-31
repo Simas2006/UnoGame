@@ -103,7 +103,12 @@ function renderCard(canvas,card,isCurrent) {
 }
 
 function renderAllCards() {
-  document.getElementById("message").innerText = "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn.";
+  var specialCardMessage = [];
+  var keys = Object.keys(currentState.specialCards);
+  for ( var i = 0; i < keys.length; i++ ) {
+    specialCardMessage.push(keys[i] + " has " + (currentState.specialCards[keys[i]] == 1 ? "UNO" : "WON"));
+  }
+  document.getElementById("message").innerText = "It's currently " + (currentState.yourTurn ? "your" : currentState.turn + "'s") + " turn.\n" + specialCardMessage.join("\n");
   renderCard(document.getElementById("currentCard"),currentState.currentCard,true);
   renderCard(document.getElementById("drawCard"),[0,2]);
   var div = document.getElementById("cards");

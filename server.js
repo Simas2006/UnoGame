@@ -28,13 +28,19 @@ function getGameState(id) {
   var data = users.filter(item => item.id == id);
   if ( data.length <= 0 ) return "err_invalid_id";
   data = data[0];
+  var specialCardsArr = users.filter(item => item.cards.length <= 1);
+  var specialCards = {};
+  for ( var i = 0; i < specialCardsArr.length; i++ ) {
+    specialCards[specialCardsArr[i].nickname] = specialCardsArr[i].cards.length;
+  }
   return JSON.stringify({
     id: id,
     turn: users[turn].nickname,
     yourTurn: users.indexOf(data) == turn,
     cards: data.cards,
     currentCard: currentCard,
-    wildColor: wildColor
+    wildColor: wildColor,
+    specialCards: specialCards
   });
 }
 
@@ -101,7 +107,7 @@ app.get("/api/play_card",function(request,response) {
     if ( currentCard[1] == 12 || (currentCard[0] == 0 && currentCard[1] == 1) ) {
       users[nextUser].cards.push(randomCard());
       users[nextUser].cards.push(randomCard());
-      if ( (currentCard[0] == 0 && currentCard[1] == 1) ) {
+      if ( currentCard[0] == 0 && currentCard[1] == 1 ) {
         users[nextUser].cards.push(randomCard());
         users[nextUser].cards.push(randomCard());
       }
