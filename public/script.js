@@ -142,6 +142,7 @@ function renderAllCards() {
     canvas.width = "100";
     canvas.id = "c:" + i;
     canvas.onclick = function() {
+      if ( currentState.leaderboard ) return;
       var index = parseInt(this.id.split(":")[1]);
       if ( currentState.cards[index][0] == 0 && currentState.cards[index][1] == 0 ) {
         document.getElementById("wild_buttons").style.display = "block";
