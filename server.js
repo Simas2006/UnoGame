@@ -140,6 +140,10 @@ app.get("/api/draw_card",function(request,response) {
 
 app.use("/public",express.static(__dirname + "/public"));
 
+app.get("/",function(request,response) {
+  response.redirect("/public/index.html");
+});
+
 app.listen(PORT,function() {
   console.log("Listening on port " + PORT);
 });
