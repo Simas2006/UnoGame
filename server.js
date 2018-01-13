@@ -185,7 +185,7 @@ app.listen(PORT,function() {
   console.log("Listening on port " + PORT + ". Waiting for " + (START_TIMEOUT / 1000) + " seconds...");
   setTimeout(function() {
     for ( var i = 0; i < users.length; i++ ) {
-      users[i].cards = "x".repeat(2).split("").map(item => randomCard())
+      users[i].cards = "x".repeat(7).split("").map(item => randomCard())
     }
     gameStart = true;
   },START_TIMEOUT);
